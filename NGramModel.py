@@ -2,6 +2,7 @@ import collections
 from tqdm import tqdm
 import os
 from preprocess import clean_sentence
+import numpy as np
 
 
 class NGramModel():
@@ -22,8 +23,6 @@ class NGramModel():
     def load_model(self, train_dir):
         f = open(os.path.join(train_dir), 'r', encoding='utf-8')
         lines = f.readlines()
-        # remove \n
-        lines = [line[:-2] for line in lines]
         pre_vocab = {}
 
         for line in tqdm(lines):
@@ -65,7 +64,7 @@ class NGramModel():
 
         self.total_words = len(self.unigram)
         self.unigram[''] = self.total_words
-        self.vocab = set(k for k,v in pre_vocab.items() if v > 1)
+        self.vocab = set(k for k, v in pre_vocab.items() if v > 1)
 
     def get_prob_unigram(self, word):
         if word not in self.unigram:
@@ -87,7 +86,7 @@ class NGramModel():
             return 0
         return self.quadrigram[words] / self.trigram[words[:3]]
 
-    def find_next_word(self, context, n=1):
+    def find_next_word(self, context, limit=10):
         context = clean_sentence(context)
         context = np.concatenate(([''], context.lower().split()))
         first_candidate = ('', 0)
@@ -109,9 +108,8 @@ class NGramModel():
                     first_candidate = (word, p)
                 elif p > second_candidate[1]:
                     second_candidate = (word, p)
-                    
 
-        if first_candidate[0] not in context[-3:]:
+        if first_candidate[0] not in context[-limit:]:
             return first_candidate
         else:
             return second_candidate
