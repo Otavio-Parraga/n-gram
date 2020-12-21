@@ -1,2 +1,2 @@
-# n-gram
-N-Gram language model implementation
+# N-Gram Language Model
+* An N-Gram language model implementation
